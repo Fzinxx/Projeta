@@ -1,121 +1,172 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { calcularSimulacao } from './utils/calcularSimulacao.js'
 import './App.css'
 
+const exemplo = {
+  nomeProduto: 'Lanche',
+  precoVenda: '20',
+  custoVariavel: '8',
+  quantidade: '100',
+  despesasFixas: '500',
+}
+
+const camposNumericos = [
+  { nome: 'precoVenda', titulo: 'Preço de venda por unidade (R$)', passo: '0.01' },
+  { nome: 'custoVariavel', titulo: 'Custo variável por unidade (R$)', passo: '0.01' },
+  { nome: 'quantidade', titulo: 'Unidades vendidas no mês', passo: '1' },
+  { nome: 'despesasFixas', titulo: 'Despesas fixas mensais (R$)', passo: '0.01' },
+]
+
+const moeda = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+})
+
+function avaliarSimulacao(dados) {
+  const temCampoVazio = camposNumericos.some(
+    ({ nome }) => dados[nome].trim() === '',
+  )
+
+  if (temCampoVazio) {
+    return {
+      resultados: null,
+      erro: 'Preencha todos os campos numéricos para calcular.',
+    }
+  }
+
+  try {
+    const resultados = calcularSimulacao({
+      precoVenda: Number(dados.precoVenda),
+      custoVariavel: Number(dados.custoVariavel),
+      quantidade: Number(dados.quantidade),
+      despesasFixas: Number(dados.despesasFixas),
+    })
+
+    return { resultados, erro: '' }
+  } catch (erro) {
+    return { resultados: null, erro: erro.message }
+  }
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [dados, setDados] = useState({ ...exemplo })
+  const { resultados, erro } = avaliarSimulacao(dados)
+
+  function alterarCampo(evento) {
+    const { name, value } = evento.target
+
+    setDados((anteriores) => ({
+      ...anteriores,
+      [name]: value,
+    }))
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <main className="simulador">
+      <header>
+        <h1>Projeta — Simulador de Negócios</h1>
+        <p>
+          Simule como preço, custos e quantidade vendida afetam
+          o resultado mensal de um produto.
+        </p>
+      </header>
+
+      <section aria-labelledby="titulo-dados">
+        <h2 id="titulo-dados">Dados da simulação</h2>
+
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
+          <label htmlFor="nomeProduto">Nome do produto</label>
+          <input
+            id="nomeProduto"
+            name="nomeProduto"
+            type="text"
+            maxLength={100}
+            value={dados.nomeProduto}
+            onChange={alterarCampo}
+          />
         </div>
+
+        {camposNumericos.map(({ nome, titulo, passo }) => (
+          <div key={nome}>
+            <label htmlFor={nome}>{titulo}</label>
+            <input
+              id={nome}
+              name={nome}
+              type="number"
+              min="0"
+              step={passo}
+              required
+              value={dados[nome]}
+              onChange={alterarCampo}
+              aria-describedby={erro ? 'erro-simulacao' : undefined}
+            />
+          </div>
+        ))}
+
         <button
           type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          onClick={() => setDados({ ...exemplo })}
         >
-          Count is {count}
+          Restaurar exemplo
         </button>
       </section>
 
-      <div className="ticks"></div>
+      <section aria-labelledby="titulo-resultados">
+        <h2 id="titulo-resultados">
+          Resultados — {dados.nomeProduto.trim() || 'Produto sem nome'}
+        </h2>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
+        {erro && (
+          <p id="erro-simulacao" role="alert">
+            {erro}
+          </p>
+        )}
+
+        {resultados && (
+          <>
+            <dl>
+              <dt>Faturamento estimado</dt>
+              <dd>{moeda.format(resultados.faturamento)}</dd>
+
+              <dt>Custo variável total</dt>
+              <dd>{moeda.format(resultados.custoVariavelTotal)}</dd>
+
+              <dt>Margem de contribuição por unidade</dt>
+              <dd>{moeda.format(resultados.margemContribuicao)}</dd>
+
+              <dt>Resultado mensal estimado</dt>
+              <dd>{moeda.format(resultados.resultadoMensal)}</dd>
+
+              <dt>Ponto de equilíbrio em unidades</dt>
+              <dd>
+                {resultados.pontoEquilibrio === null
+                  ? 'Indisponível: a margem não cobre as despesas fixas.'
+                  : `${resultados.pontoEquilibrio} unidades`}
+              </dd>
+            </dl>
+
+            {resultados.margemContribuicao <= 0 && (
+              <p>
+                A margem por unidade é zero ou negativa. Aumentar as
+                vendas não melhora o resultado com esses valores.
+              </p>
+            )}
+
+            {resultados.pontoEquilibrio === 0 && (
+              <p>
+                Sem despesas fixas, zero vendas já resulta em zero.
+                Confira a margem por unidade para avaliar o efeito das vendas.
+              </p>
+            )}
+          </>
+        )}
+
+        <p>
+          As estimativas consideram somente os custos informados.
+          O resultado mensal não representa lucro líquido contábil.
+        </p>
       </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    </main>
   )
 }
 
