@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { calcularSimulacao } from './utils/calcularSimulacao.js'
 import ComparacaoCenarios from './components/ComparacaoCenarios.jsx'
+import GraficoSimulacao from './components/GraficoSimulacao.jsx'
 import './App.css'
 
 const exemplo = {
@@ -203,6 +204,11 @@ function App() {
           O resultado mensal não representa lucro líquido contábil.
         </p>
       </section>
+
+      <GraficoSimulacao
+        resultados={resultados}
+        despesasFixas={Number(dados.despesasFixas)}
+      />
 
       <ComparacaoCenarios
         cenarioBase={cenarioBase}
