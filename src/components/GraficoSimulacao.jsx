@@ -48,8 +48,8 @@ function GraficoSimulacao({ resultados, despesasFixas }) {
       <h2 id="titulo-grafico">Visão mensal do cenário atual</h2>
 
       <p>
-        Valores em reais. Passe o mouse sobre as barras para
-        consultar os valores completos.
+        Valores em reais. Toque nas barras ou passe o mouse sobre
+        elas para consultar os valores completos.
       </p>
 
       <div style={{ width: '100%', minWidth: 0, height: 320 }}>
@@ -57,20 +57,23 @@ function GraficoSimulacao({ resultados, despesasFixas }) {
           <BarChart
             data={dadosGrafico}
             layout="vertical"
-            margin={{ top: 16, right: 24, bottom: 16, left: 8 }}
+            margin={{ top: 16, right: 24, bottom: 16, left: 0 }}
             accessibilityLayer
           >
             <CartesianGrid strokeDasharray="3 3" horizontal={false} />
 
             <XAxis
               type="number"
+              tickCount={3}
+              minTickGap={24}
+              tick={{ fontSize: 12 }}
               tickFormatter={(valor) => numeroCompacto.format(valor)}
             />
 
             <YAxis
               type="category"
               dataKey="nome"
-              width={115}
+              width={110}
               tick={{ fontSize: 12 }}
             />
 
