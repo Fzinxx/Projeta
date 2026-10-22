@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { calcularSimulacao } from './utils/calcularSimulacao.js'
+import ComparacaoCenarios from './components/ComparacaoCenarios.jsx'
 import './App.css'
 
 const exemplo = {
@@ -50,6 +51,7 @@ function avaliarSimulacao(dados) {
 
 function App() {
   const [dados, setDados] = useState({ ...exemplo })
+  const [cenarioBase, setCenarioBase] = useState(null)
   const { resultados, erro } = avaliarSimulacao(dados)
 
   function alterarCampo(evento) {
@@ -59,6 +61,17 @@ function App() {
       ...anteriores,
       [name]: value,
     }))
+  }
+
+  function guardarCenarioBase() {
+    if (!resultados) {
+      return
+    }
+
+    setCenarioBase({
+      dados: { ...dados },
+      resultados: { ...resultados },
+    })
   }
 
   return (
@@ -103,12 +116,36 @@ function App() {
           </div>
         ))}
 
-        <button
-          type="button"
-          onClick={() => setDados({ ...exemplo })}
-        >
-          Restaurar exemplo
-        </button>
+        <div>
+          <button
+            type="button"
+            onClick={() => setDados({ ...exemplo })}
+          >
+            Restaurar exemplo
+          </button>
+
+          <button
+            type="button"
+            onClick={guardarCenarioBase}
+            disabled={!resultados}
+          >
+            {cenarioBase ? 'Substituir cenário base' : 'Guardar cenário base'}
+          </button>
+
+          {cenarioBase && (
+            <button
+              type="button"
+              onClick={() => setCenarioBase(null)}
+            >
+              Limpar cenário base
+            </button>
+          )}
+        </div>
+
+        <p>
+          Guardar o cenário base permite compará-lo com novas alterações.
+          Restaurar o exemplo altera apenas os campos atuais.
+        </p>
       </section>
 
       <section aria-labelledby="titulo-resultados">
@@ -166,6 +203,11 @@ function App() {
           O resultado mensal não representa lucro líquido contábil.
         </p>
       </section>
+
+      <ComparacaoCenarios
+        cenarioBase={cenarioBase}
+        resultadosAtuais={resultados}
+      />
     </main>
   )
 }
