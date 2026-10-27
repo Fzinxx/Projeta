@@ -85,6 +85,7 @@ O simulador apresenta:
 - CSS.
 - Recharts.
 - Oxlint.
+- Testes nativos do Node.js com `node:test` e `node:assert/strict`.
 - Git e GitHub.
 
 ## Executar localmente
@@ -107,6 +108,14 @@ npm run dev
 ```
 
 Abra no navegador o endereço Local informado pelo terminal.
+
+### Executar os testes automatizados
+
+```bash
+npm test
+```
+
+Os testes verificam a função de cálculo e suas validações numéricas. Não é necessário instalar uma biblioteca adicional de testes.
 
 ### Verificar o código
 
@@ -136,6 +145,7 @@ O preview é local e não publica a aplicação na internet.
 | --- | --- |
 | `src/App.jsx` | Campos, estado da simulação e conexão entre os componentes |
 | `src/utils/calcularSimulacao.js` | Validação numérica e cálculos |
+| `src/utils/calcularSimulacao.test.js` | Testes automatizados dos cálculos e das validações |
 | `src/components/ComparacaoCenarios.jsx` | Tabela de comparação |
 | `src/components/GraficoSimulacao.jsx` | Carregamento do gráfico com lazy e Suspense |
 | `src/components/GraficoConteudo.jsx` | Construção do gráfico com Recharts |
@@ -144,29 +154,42 @@ O preview é local e não publica a aplicação na internet.
 
 ## Verificações realizadas
 
-Foram feitas verificações manuais dos seguintes comportamentos:
+### Testes automatizados
 
-- Simulação com resultado positivo.
-- Preço igual ou inferior ao custo variável.
-- Quantidade de vendas igual a zero.
-- Todos os valores zerados.
-- Rejeição de quantidade negativa ou fracionada.
-- Cálculos com centavos.
+A suíte contém 10 testes:
+
+- Cenário de exemplo com resultado positivo.
+- Valores monetários com duas casas decimais.
+- Margem zero com despesas fixas positivas.
+- Prejuízo com margem negativa.
+- Despesas fixas mantidas quando não há vendas.
+- Todos os valores iguais a zero.
+- Ponto de equilíbrio na primeira quantidade inteira que cobre as despesas.
+- Rejeição de valores negativos, não numéricos e não finitos em cada campo.
+- Rejeição de quantidade fracionada ou acima do limite seguro.
+- Rejeição de cálculos que ultrapassam o limite seguro em centavos.
+
+Na última execução, os 10 testes passaram.
+
+### Verificações manuais da interface
+
+Foram conferidos os seguintes comportamentos:
+
 - Atualização dos resultados ao alterar os campos.
 - Ocultação dos resultados e do gráfico com campo numérico vazio.
 - Restauração do exemplo.
 - Armazenamento, substituição e limpeza do cenário base.
 - Preservação do cenário base ao alterar os campos atuais.
+- Gráfico com resultados positivos e negativos.
 - Exibição do gráfico após o carregamento separado.
 - Layout em computador e simulação de celular com largura de 390 px.
 
-Os comandos de lint e build também foram executados com sucesso.
+As verificações da interface permanecem manuais. Os testes automatizados atuais cobrem a função de cálculo.
 
-Essas verificações ainda não estão organizadas em uma suíte automatizada de testes.
+Os comandos de testes, lint e build foram executados com sucesso.
 
 ## Próximos passos
 
-- Complementar as verificações dos cálculos e casos extremos.
 - Definir a paleta e o ícone próprios do Projeta.
 - Revisar a apresentação final e a documentação.
 - Integrar a versão validada à main.
