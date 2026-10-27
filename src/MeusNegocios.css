@@ -1,0 +1,77 @@
+.simulador > .meus-negocios {
+  grid-column: 1 / -1;
+}
+
+.meus-negocios-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.simulador .meus-negocios h2 {
+  margin-bottom: 8px;
+}
+
+.meus-negocios-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.simulador .botao-salvar-negocio {
+  border-color: var(--destaque);
+  color: var(--texto-botao);
+  background: var(--destaque);
+}
+
+.simulador .botao-salvar-negocio:hover:not(:disabled) {
+  border-color: var(--destaque-hover);
+  background: var(--destaque-hover);
+}
+
+.meus-negocios > p {
+  margin-top: 16px;
+}
+
+.simulador .meus-negocios-erro {
+  color: var(--erro);
+}
+
+.meus-negocios-lista {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--borda);
+}
+
+.meus-negocios-lista ul {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.meus-negocios-lista li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+
+.meus-negocios-lista li > div {
+  min-width: 0;
+  flex: 1;
+}
+
+@media (max-width: 520px) {
+  .meus-negocios-acoes {
+    width: 100%;
+  }
+}
