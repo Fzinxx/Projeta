@@ -1,3 +1,5 @@
+/* Estrutura da página */
+
 .simulador {
   display: grid;
   grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.3fr);
@@ -14,9 +16,20 @@
   padding: 8px 0 16px;
 }
 
+.simulador > header::before {
+  display: block;
+  width: 56px;
+  height: 5px;
+  margin-bottom: 20px;
+  border-radius: 999px;
+  background: var(--cobre);
+  content: "";
+}
+
 .simulador h1 {
   max-width: 900px;
   margin-bottom: 16px;
+  color: var(--destaque);
   font-size: clamp(2rem, 4vw, 3.2rem);
   font-weight: 750;
   letter-spacing: -0.04em;
@@ -49,6 +62,8 @@
   overflow-wrap: anywhere;
 }
 
+/* Campos da simulação */
+
 .simulador section[aria-labelledby="titulo-dados"] > div {
   margin-bottom: 18px;
 }
@@ -75,6 +90,16 @@
   border-color: var(--texto-secundario);
 }
 
+.simulador input:focus-visible {
+  border-color: var(--foco);
+}
+
+.simulador section[aria-labelledby="titulo-dados"] > p {
+  font-size: 0.85rem;
+}
+
+/* Botões */
+
 .simulador section[aria-labelledby="titulo-dados"] > div:last-of-type {
   display: flex;
   flex-wrap: wrap;
@@ -100,7 +125,7 @@
 
 .simulador section[aria-labelledby="titulo-dados"] button:nth-child(2) {
   border-color: var(--destaque);
-  color: #ffffff;
+  color: var(--texto-botao);
   background: var(--destaque);
 }
 
@@ -113,8 +138,10 @@
   opacity: 0.5;
 }
 
-.simulador section[aria-labelledby="titulo-dados"] > p {
-  font-size: 0.85rem;
+/* Resultados */
+
+.simulador section[aria-labelledby="titulo-resultados"] {
+  border-top: 3px solid var(--cobre);
 }
 
 .simulador dl {
@@ -164,6 +191,8 @@
   background: var(--erro-fundo);
 }
 
+/* Gráfico */
+
 .simulador section[aria-labelledby="titulo-grafico"],
 .simulador section[aria-labelledby="titulo-comparacao"] {
   grid-column: 1 / -1;
@@ -187,6 +216,14 @@
   stroke: var(--borda);
 }
 
+.simulador .recharts-bar-rectangle path {
+  fill: var(--grafico);
+}
+
+.simulador .recharts-reference-line line {
+  stroke: var(--texto-secundario);
+}
+
 .simulador .recharts-default-tooltip {
   border: 1px solid var(--borda) !important;
   border-radius: 10px;
@@ -203,6 +240,8 @@
   fill: var(--texto);
   fill-opacity: 0.06;
 }
+
+/* Comparação de cenários */
 
 .simulador section[aria-labelledby="titulo-comparacao"] {
   overflow-x: auto;
@@ -248,6 +287,8 @@
   font-size: 0.88rem;
 }
 
+/* Tablets */
+
 @media (max-width: 900px) {
   .simulador {
     grid-template-columns: minmax(0, 1fr);
@@ -258,6 +299,8 @@
     padding: 24px;
   }
 }
+
+/* Celulares */
 
 @media (max-width: 520px) {
   .simulador {
@@ -297,6 +340,8 @@
     width: 100%;
   }
 }
+
+/* Preferência de movimento reduzido */
 
 @media (prefers-reduced-motion: reduce) {
   .simulador button {

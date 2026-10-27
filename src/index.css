@@ -1,25 +1,32 @@
 :root {
   font-family: system-ui, "Segoe UI", Roboto, sans-serif;
-  color: #172033;
-  background: #f3f6fb;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --texto: #172033;
-  --texto-secundario: #526079;
-  --fundo: #f3f6fb;
-  --superficie: #ffffff;
-  --campo: #f8fafc;
-  --borda: #d5deeb;
-  --destaque: #2563eb;
-  --destaque-hover: #1d4ed8;
-  --foco: #2563eb;
-  --erro: #b91c1c;
-  --erro-fundo: #fff1f2;
-  --sombra: 0 8px 28px rgb(15 23 42 / 5%);
+  --texto: #242d30;
+  --texto-secundario: #596662;
+  --fundo: #f7f4ee;
+  --superficie: #fffefa;
+  --campo: #f3f2ec;
+  --borda: #d7ddd5;
 
+  --destaque: #164e52;
+  --destaque-hover: #103c40;
+  --texto-botao: #ffffff;
+  --foco: #164e52;
+
+  --cobre: #b96540;
+  --cobre-suave: #f4e5da;
+  --grafico: #164e52;
+
+  --erro: #a12f36;
+  --erro-fundo: #fff0ed;
+  --sombra: 0 8px 28px rgb(36 45 48 / 5%);
+
+  color: var(--texto);
+  background: var(--fundo);
   color-scheme: light;
 }
 
@@ -76,23 +83,33 @@ button:disabled {
   outline-offset: 3px;
 }
 
+::selection {
+  color: var(--texto);
+  background: var(--cobre-suave);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --texto: #f1f5f9;
-    --texto-secundario: #b6c4d8;
-    --fundo: #0d1423;
-    --superficie: #151f32;
-    --campo: #0f192b;
-    --borda: #35445f;
-    --destaque: #2563eb;
-    --destaque-hover: #1d4ed8;
-    --foco: #93c5fd;
-    --erro: #fda4af;
-    --erro-fundo: #381c2a;
-    --sombra: 0 8px 28px rgb(0 0 0 / 15%);
+    --texto: #edf2ec;
+    --texto-secundario: #b2c1ba;
+    --fundo: #101c1e;
+    --superficie: #18282b;
+    --campo: #122124;
+    --borda: #3c5354;
 
-    color: var(--texto);
-    background: var(--fundo);
+    --destaque: #a0d0c8;
+    --destaque-hover: #b9e1da;
+    --texto-botao: #102b2e;
+    --foco: #a0d0c8;
+
+    --cobre: #e2a17c;
+    --cobre-suave: #49362d;
+    --grafico: #a0d0c8;
+
+    --erro: #ffb4ab;
+    --erro-fundo: #3b2427;
+    --sombra: 0 8px 28px rgb(0 0 0 / 16%);
+
     color-scheme: dark;
   }
 }
