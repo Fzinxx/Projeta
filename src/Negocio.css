@@ -1,0 +1,146 @@
+/* Complementos da simulação com vários produtos */
+
+.negocio textarea {
+  display: block;
+  width: 100%;
+  min-height: 90px;
+  padding: 10px 12px;
+  resize: vertical;
+  border: 1px solid var(--borda);
+  border-radius: 9px;
+  color: var(--texto);
+  background: var(--campo);
+  font: inherit;
+}
+
+.negocio textarea:hover {
+  border-color: var(--texto-secundario);
+}
+
+.negocio .ajuda-campo {
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+
+.negocio .leitura-resultado {
+  padding: 18px;
+  border-left: 3px solid var(--cobre);
+  border-radius: 10px;
+  background: var(--campo);
+}
+
+.negocio .leitura-resultado h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.negocio .leitura-resultado p {
+  font-size: 0.88rem;
+}
+
+.negocio .leitura-resultado p + p {
+  margin-top: 12px;
+}
+
+.negocio .secao-produtos,
+.negocio .secao-tabela {
+  grid-column: 1 / -1;
+}
+
+.negocio .cabecalho-produtos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.negocio .cabecalho-produtos h2 {
+  margin-bottom: 8px;
+}
+
+.negocio .cabecalho-produtos p {
+  font-size: 0.9rem;
+}
+
+.negocio .cabecalho-produtos button {
+  flex-shrink: 0;
+  border-color: var(--destaque);
+  color: var(--texto-botao);
+  background: var(--destaque);
+}
+
+.negocio .cabecalho-produtos button:hover {
+  border-color: var(--destaque-hover);
+  background: var(--destaque-hover);
+}
+
+.negocio .lista-produtos {
+  display: grid;
+  gap: 18px;
+}
+
+.negocio .produto {
+  min-width: 0;
+  margin: 0;
+  padding: 20px;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+}
+
+.negocio .produto legend {
+  padding: 0 8px;
+  color: var(--destaque);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.negocio .campos-produto {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: 16px;
+}
+
+.negocio .remover-produto {
+  margin-top: 16px;
+  color: var(--erro);
+}
+
+.negocio .secao-tabela {
+  overflow-x: auto;
+}
+
+.negocio .secao-tabela table {
+  min-width: 700px;
+}
+
+.negocio .secao-tabela td,
+.negocio section[aria-labelledby="titulo-comparacao"] td {
+  white-space: nowrap;
+}
+
+.negocio table th {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .negocio .campos-produto {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .negocio .cabecalho-produtos {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .negocio .campos-produto {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .negocio .produto {
+    padding: 16px 12px;
+  }
+}
