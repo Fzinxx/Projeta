@@ -30,8 +30,14 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
   const [aviso, setAviso] = useState('')
 
   const ocupado = operacao !== ''
-  const versaoAtual = JSON.stringify(dados)
-  const temAlteracoes = versaoAtual !== versaoSalva
+  const temAlteracoes = JSON.stringify(dados) !== versaoSalva
+
+  const situacao =
+    versaoSalva === null
+      ? 'Ainda não salvo'
+      : temAlteracoes
+        ? 'Alterações pendentes'
+        : 'Salvo na sua conta'
 
   function podeTrocarNegocio() {
     if (!temAlteracoes) return true
@@ -114,15 +120,19 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
       aria-busy={ocupado}
     >
       <div className="meus-negocios-cabecalho">
-        <div>
-          <h2 id="titulo-meus-negocios">Seus negócios</h2>
-          <p>
-            {versaoSalva === null
-              ? 'Este negócio ainda não foi salvo.'
-              : temAlteracoes
-                ? 'Você tem alterações que ainda não foram salvas.'
-                : 'As alterações atuais estão salvas.'}
-          </p>
+        <div className="negocio-identificacao">
+          <p className="negocio-etiqueta">Área de trabalho</p>
+
+          <h2 id="titulo-meus-negocios">
+            {dados.nome.trim() || 'Novo negócio'}
+          </h2>
+
+          <span
+            className="negocio-situacao"
+            data-salvo={versaoSalva !== null && !temAlteracoes}
+          >
+            {situacao}
+          </span>
         </div>
 
         <div className="meus-negocios-acoes">
@@ -139,6 +149,8 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
             type="button"
             onClick={consultar}
             disabled={ocupado}
+            aria-expanded={mostrarLista}
+            aria-controls="lista-meus-negocios"
           >
             {operacao === 'listar'
               ? 'Carregando…'
@@ -159,53 +171,70 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
         </p>
       )}
 
-      {aviso && <p role="status">{aviso}</p>}
-
-      {mostrarLista && (
-        <div className="meus-negocios-lista">
-          {negocios.length === 0 ? (
-            <p>Você ainda não tem negócios salvos.</p>
-          ) : (
-            <ul>
-              {negocios.map((negocio) => (
-                <li key={negocio.id}>
-                  <div>
-                    <strong>{negocio.dados.nome}</strong>
-                    <p>
-                      {negocio.dados.produtos.length}{' '}
-                      {negocio.dados.produtos.length === 1
-                        ? 'produto cadastrado'
-                        : 'produtos cadastrados'}
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => abrir(negocio)}
-                    disabled={ocupado}
-                    aria-label={`Abrir ${negocio.dados.nome}`}
-                  >
-                    Abrir
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+      {aviso && (
+        <p className="negocio-aviso" role="status">
+          {aviso}
+        </p>
       )}
+
+      <div id="lista-meus-negocios" hidden={!mostrarLista}>
+        {mostrarLista && (
+          <div className="meus-negocios-lista">
+            <h3>Escolha um negócio</h3>
+
+            {negocios.length === 0 ? (
+              <p>Você ainda não tem negócios salvos.</p>
+            ) : (
+              <ul>
+                {negocios.map((negocio) => (
+                  <li key={negocio.id}>
+                    <div>
+                      <strong>{negocio.dados.nome}</strong>
+                      <p>
+                        {negocio.dados.produtos.length}{' '}
+                        {negocio.dados.produtos.length === 1
+                          ? 'produto cadastrado'
+                          : 'produtos cadastrados'}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => abrir(negocio)}
+                      disabled={ocupado}
+                      aria-label={`Abrir ${negocio.dados.nome}`}
+                    >
+                      Abrir
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
 
       {versaoSalva !== null ? (
         <div inert={ocupado}>
-          <CenariosSalvos
-            key={id}
-            negocioId={id}
-            dados={dados}
-            podeSalvar={podeSalvar}
-          />
+          <details key={id} className="painel-cenarios">
+            <summary>
+              <span>Cenários e comparações</span>
+              <span className="painel-cenarios-descricao">
+                Salvar simulações e comparar resultados
+              </span>
+            </summary>
+
+            <CenariosSalvos
+              key={id}
+              negocioId={id}
+              dados={dados}
+              podeSalvar={podeSalvar}
+            />
+          </details>
         </div>
       ) : (
-        <p>
-          Salve ou abra um negócio para acessar os cenários salvos.
+        <p className="negocio-orientacao">
+          Salve ou abra um negócio para acessar seus cenários.
         </p>
       )}
     </section>

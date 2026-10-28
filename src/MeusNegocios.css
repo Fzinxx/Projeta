@@ -1,5 +1,6 @@
 .simulador > .meus-negocios {
   grid-column: 1 / -1;
+  padding: 24px 28px;
 }
 
 .meus-negocios-cabecalho {
@@ -10,8 +11,33 @@
   gap: 20px;
 }
 
+.negocio-identificacao {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.simulador .negocio-etiqueta {
+  margin-bottom: 6px;
+  color: var(--cobre);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .simulador .meus-negocios h2 {
   margin-bottom: 8px;
+  font-size: 1.25rem;
+}
+
+.negocio-situacao {
+  display: inline-block;
+  color: var(--texto-secundario);
+  font-size: 0.82rem;
+}
+
+.negocio-situacao[data-salvo="true"] {
+  color: var(--destaque);
 }
 
 .meus-negocios-acoes {
@@ -33,16 +59,30 @@
 
 .meus-negocios > p {
   margin-top: 16px;
+  font-size: 0.85rem;
 }
 
 .simulador .meus-negocios-erro {
   color: var(--erro);
 }
 
+.simulador .negocio-aviso {
+  padding: 10px 12px;
+  border-left: 3px solid var(--destaque);
+  border-radius: 4px;
+  background: var(--campo);
+}
+
 .meus-negocios-lista {
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid var(--borda);
+}
+
+.meus-negocios-lista h3 {
+  margin: 0 0 16px;
+  color: var(--texto);
+  font-size: 1rem;
 }
 
 .meus-negocios-lista ul {
@@ -70,8 +110,52 @@
   flex: 1;
 }
 
+.meus-negocios-lista li p {
+  margin-top: 4px;
+  font-size: 0.82rem;
+}
+
+.painel-cenarios {
+  margin-top: 20px;
+  border-top: 1px solid var(--borda);
+}
+
+.painel-cenarios > summary {
+  padding-top: 18px;
+  color: var(--texto);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.painel-cenarios > summary::marker {
+  color: var(--cobre);
+}
+
+.painel-cenarios-descricao {
+  display: block;
+  margin-top: 4px;
+  color: var(--texto-secundario);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.painel-cenarios > .cenarios-salvos {
+  margin-top: 18px;
+  padding-top: 0;
+  border-top: 0;
+}
+
 @media (max-width: 520px) {
+  .simulador > .meus-negocios {
+    padding: 20px 16px;
+  }
+
   .meus-negocios-acoes {
     width: 100%;
+  }
+
+  .negocio-identificacao {
+    flex-basis: 100%;
   }
 }
