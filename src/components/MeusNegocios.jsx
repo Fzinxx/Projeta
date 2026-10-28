@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { listarNegocios, salvarNegocio } from '../services/negocios.js'
+import CenariosSalvos from './CenariosSalvos.jsx'
 import '../MeusNegocios.css'
 
 function criarNegocioVazio() {
@@ -75,8 +76,7 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
     setAviso('')
 
     try {
-      const lista = await listarNegocios()
-      setNegocios(lista)
+      setNegocios(await listarNegocios())
       setMostrarLista(true)
     } catch (falha) {
       setErro(falha.message)
@@ -135,7 +135,11 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
             {operacao === 'salvar' ? 'Salvando…' : 'Salvar negócio'}
           </button>
 
-          <button type="button" onClick={consultar} disabled={ocupado}>
+          <button
+            type="button"
+            onClick={consultar}
+            disabled={ocupado}
+          >
             {operacao === 'listar'
               ? 'Carregando…'
               : mostrarLista
@@ -188,6 +192,21 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
             </ul>
           )}
         </div>
+      )}
+
+      {versaoSalva !== null ? (
+        <div inert={ocupado}>
+          <CenariosSalvos
+            key={id}
+            negocioId={id}
+            dados={dados}
+            podeSalvar={podeSalvar}
+          />
+        </div>
+      ) : (
+        <p>
+          Salve ou abra um negócio para acessar os cenários salvos.
+        </p>
       )}
     </section>
   )
