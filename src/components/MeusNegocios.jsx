@@ -113,6 +113,30 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
     setAviso('Preencha os dados do novo negócio.')
   }
 
+  function carregarCenario(novosDados, nomeCenario) {
+    if (ocupado) return false
+
+    if (
+      temAlteracoes &&
+      !window.confirm(
+        'Existem alterações não salvas. Carregar este cenário ' +
+        'substituirá os campos atuais. Deseja continuar?',
+      )
+    ) {
+      return false
+    }
+
+    onAbrir(novosDados)
+    setMostrarLista(false)
+    setErro('')
+    setAviso(
+      `Cenário "${nomeCenario}" carregado. ` +
+      'As alterações ainda não foram salvas no negócio.',
+    )
+
+    return true
+  }
+
   return (
     <section
       className="meus-negocios"
@@ -229,6 +253,7 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
               negocioId={id}
               dados={dados}
               podeSalvar={podeSalvar}
+              onCarregar={carregarCenario}
             />
           </details>
         </div>

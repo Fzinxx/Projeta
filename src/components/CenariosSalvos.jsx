@@ -22,10 +22,35 @@ function avaliar(dados) {
   }
 }
 
+function recuperarDados(cenario) {
+  if (cenario.dados?.versao !== 1) {
+    throw new Error('O formato deste cenário não é compatível.')
+  }
+
+  const origem = cenario.dados.negocio
+
+  calcularDadosCenario(origem)
+
+  return {
+    nome: origem.nome,
+    descricao:
+      typeof origem.descricao === 'string' ? origem.descricao : '',
+    despesasFixas: String(origem.despesasFixas),
+    produtos: origem.produtos.map((produto) => ({
+      id: crypto.randomUUID(),
+      nome: produto.nome,
+      precoVenda: String(produto.precoVenda),
+      custoVariavel: String(produto.custoVariavel),
+      quantidade: String(produto.quantidade),
+    })),
+  }
+}
+
 export default function CenariosSalvos({
   negocioId,
   dados,
   podeSalvar,
+  onCarregar,
 }) {
   const [nome, setNome] = useState('')
   const [cenarios, setCenarios] = useState([])
@@ -37,6 +62,7 @@ export default function CenariosSalvos({
 
   const ocupado = operacao !== ''
   const atuais = avaliar(dados)
+
   const base =
     selecionado?.dados?.versao === 1
       ? avaliar(selecionado.dados.negocio)
@@ -90,13 +116,37 @@ export default function CenariosSalvos({
     }
   }
 
+  function carregar(cenario) {
+    if (ocupado) return
+
+    setErro('')
+    setAviso('')
+
+    try {
+      const dadosRecuperados = recuperarDados(cenario)
+      const carregou = onCarregar(dadosRecuperados, cenario.nome)
+
+      if (carregou) {
+        setSelecionado(cenario)
+        setAviso(
+          `Cenário "${cenario.nome}" carregado nos campos. ` +
+          'Clique em Salvar negócio se quiser guardar essas alterações.',
+        )
+      }
+    } catch (falha) {
+      setErro(falha.message)
+    }
+  }
+
   return (
     <div className="cenarios-salvos" aria-busy={ocupado}>
       <h3>Cenários salvos</h3>
 
       <p>
         Guarde os valores atuais com um nome para comparar depois.
-        Salvar um cenário não altera o negócio salvo.
+        Carregar um cenário recupera seus dados nos campos.
+        As alterações só vão para o negócio salvo ao clicar em
+        Salvar negócio.
       </p>
 
       <form onSubmit={salvar} className="cenario-formulario">
@@ -166,6 +216,15 @@ export default function CenariosSalvos({
                     aria-label={`Comparar com ${cenario.nome}`}
                   >
                     Comparar
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={ocupado}
+                    onClick={() => carregar(cenario)}
+                    aria-label={`Carregar cenário ${cenario.nome} nos campos`}
+                  >
+                    Carregar nos campos
                   </button>
                 </li>
               ))}
