@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import {
   calcularDadosCenario,
+  excluirCenario,
   listarCenarios,
   salvarCenario,
 } from '../services/cenarios.js'
@@ -57,6 +58,7 @@ export default function CenariosSalvos({
   const [selecionado, setSelecionado] = useState(null)
   const [mostrarLista, setMostrarLista] = useState(false)
   const [operacao, setOperacao] = useState('')
+  const [idExcluindo, setIdExcluindo] = useState(null)
   const [erro, setErro] = useState('')
   const [aviso, setAviso] = useState('')
 
@@ -135,6 +137,42 @@ export default function CenariosSalvos({
       }
     } catch (falha) {
       setErro(falha.message)
+    }
+  }
+
+  async function remover(cenario) {
+    if (ocupado) return
+
+    const confirmou = window.confirm(
+      `Excluir o cenário "${cenario.nome}"? ` +
+      'Essa ação não pode ser desfeita. ' +
+      'O negócio e os campos atuais serão mantidos.',
+    )
+
+    if (!confirmou) return
+
+    setOperacao('excluir')
+    setIdExcluindo(cenario.id)
+    setErro('')
+    setAviso('')
+
+    try {
+      await excluirCenario(negocioId, cenario.id)
+
+      setCenarios((anteriores) =>
+        anteriores.filter((item) => item.id !== cenario.id),
+      )
+
+      setSelecionado((anterior) =>
+        anterior?.id === cenario.id ? null : anterior,
+      )
+
+      setAviso(`Cenário "${cenario.nome}" excluído.`)
+    } catch (falha) {
+      setErro(falha.message)
+    } finally {
+      setOperacao('')
+      setIdExcluindo(null)
     }
   }
 
@@ -226,6 +264,18 @@ export default function CenariosSalvos({
                   >
                     Carregar nos campos
                   </button>
+
+                  <button
+                    className="remover-produto"
+                    type="button"
+                    disabled={ocupado}
+                    onClick={() => remover(cenario)}
+                    aria-label={`Excluir cenário ${cenario.nome}`}
+                  >
+                    {idExcluindo === cenario.id
+                      ? 'Excluindo…'
+                      : 'Excluir'}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -294,6 +344,7 @@ export default function CenariosSalvos({
 
           <button
             type="button"
+            disabled={ocupado}
             onClick={() => setSelecionado(null)}
           >
             Fechar comparação

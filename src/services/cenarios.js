@@ -83,3 +83,32 @@ export async function listarCenarios(negocioId) {
 
   return data
 }
+
+export async function excluirCenario(negocioId, cenarioId) {
+  if (!negocioId || !cenarioId) {
+    throw new Error('Selecione um cenário válido para excluir.')
+  }
+
+  const { data, error } = await supabase
+    .from('cenarios')
+    .delete()
+    .eq('negocio_id', negocioId)
+    .eq('id', cenarioId)
+    .select('id')
+    .maybeSingle()
+
+  if (error) {
+    throw new Error(
+      'Não foi possível excluir o cenário. Confira sua conexão.',
+    )
+  }
+
+  if (!data) {
+    throw new Error(
+      'O cenário não foi encontrado ou você não tem acesso. ' +
+      'Feche e abra a lista para atualizar.',
+    )
+  }
+
+  return data.id
+}
