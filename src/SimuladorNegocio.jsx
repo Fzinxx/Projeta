@@ -1,28 +1,16 @@
 import { useState } from 'react'
 import { calcularNegocio } from './utils/calcularNegocio.js'
 import { formatarMoeda, formatarNumero } from './utils/formatar.js'
+import {
+  criarNegocioVazio,
+  criarProdutoVazio,
+  temConteudoNegocio,
+} from './utils/camposNegocio.js'
+import CampoMoeda from './components/CampoMoeda.jsx'
 import GraficoSimulacao from './components/GraficoSimulacao.jsx'
 import MeusNegocios from './components/MeusNegocios.jsx'
 import './App.css'
 import './Negocio.css'
-
-const camposProduto = [
-  {
-    nome: 'precoVenda',
-    titulo: 'Preço por unidade (R$)',
-    passo: '0.01',
-  },
-  {
-    nome: 'custoVariavel',
-    titulo: 'Custo por unidade (R$)',
-    passo: '0.01',
-  },
-  {
-    nome: 'quantidade',
-    titulo: 'Vendas no mês (unidades)',
-    passo: '1',
-  },
-]
 
 const indicadoresComparacao = [
   { nome: 'faturamento', titulo: 'Faturamento estimado' },
@@ -35,49 +23,20 @@ const indicadoresComparacao = [
   { nome: 'resultadoMensal', titulo: 'Resultado mensal estimado' },
 ]
 
-function criarExemplo() {
-  return {
-    nome: 'Minha lanchonete',
-    descricao: 'Simulação mensal de lanches e sucos.',
-    despesasFixas: '500',
-    produtos: [
-      {
-        id: crypto.randomUUID(),
-        nome: 'Lanche',
-        precoVenda: '20',
-        custoVariavel: '8',
-        quantidade: '100',
-      },
-      {
-        id: crypto.randomUUID(),
-        nome: 'Suco',
-        precoVenda: '6',
-        custoVariavel: '2',
-        quantidade: '100',
-      },
-    ],
-  }
-}
-
 function avaliarNegocio(dados) {
-  if (dados.despesasFixas.trim() === '') {
-    return {
-      resultados: null,
-      erro: 'Informe as despesas fixas mensais.',
-    }
-  }
+  const incompleto =
+    dados.despesasFixas.trim() === '' ||
+    dados.produtos.length === 0 ||
+    dados.produtos.some(
+      (produto) =>
+        !produto.nome.trim() ||
+        ['precoVenda', 'custoVariavel', 'quantidade'].some(
+          (campo) => String(produto[campo]).trim() === '',
+        ),
+    )
 
-  const produtoIncompleto = dados.produtos.find((produto) =>
-    camposProduto.some(
-      ({ nome }) => String(produto[nome]).trim() === '',
-    ),
-  )
-
-  if (produtoIncompleto) {
-    return {
-      resultados: null,
-      erro: 'Preencha todos os campos numéricos dos produtos.',
-    }
+  if (incompleto) {
+    return { resultados: null, erro: '' }
   }
 
   try {
@@ -98,7 +57,7 @@ function avaliarNegocio(dados) {
 }
 
 export default function SimuladorNegocio() {
-  const [dados, setDados] = useState(criarExemplo)
+  const [dados, setDados] = useState(criarNegocioVazio)
   const [cenarioBase, setCenarioBase] = useState(null)
 
   const { resultados, erro } = avaliarNegocio(dados)
@@ -130,28 +89,17 @@ export default function SimuladorNegocio() {
   }
 
   function adicionarProduto() {
-    const id = crypto.randomUUID()
+    const produto = criarProdutoVazio()
 
     setDados((anteriores) => ({
       ...anteriores,
-      produtos: [
-        ...anteriores.produtos,
-        {
-          id,
-          nome: `Produto ${anteriores.produtos.length + 1}`,
-          precoVenda: '0',
-          custoVariavel: '0',
-          quantidade: '0',
-        },
-      ],
+      produtos: [...anteriores.produtos, produto],
     }))
   }
 
   function removerProduto(id) {
     setDados((anteriores) => {
-      if (anteriores.produtos.length <= 1) {
-        return anteriores
-      }
+      if (anteriores.produtos.length <= 1) return anteriores
 
       return {
         ...anteriores,
@@ -169,6 +117,21 @@ export default function SimuladorNegocio() {
       nome: dados.nome.trim() || 'Negócio sem nome',
       resultados: { ...resultados },
     })
+  }
+
+  function limparCampos() {
+    if (
+      temConteudoNegocio(dados) &&
+      !window.confirm(
+        'Limpar os campos atuais? Para recuperar alterações depois, ' +
+        'salve o negócio ou um cenário antes de continuar.',
+      )
+    ) {
+      return
+    }
+
+    setDados(criarNegocioVazio())
+    setCenarioBase(null)
   }
 
   function abrirNegocio(negocio) {
@@ -203,18 +166,22 @@ export default function SimuladorNegocio() {
             type="text"
             maxLength={100}
             required
+            placeholder="Digite o nome do seu negócio"
             value={dados.nome}
             onChange={alterarNegocio}
           />
         </div>
 
         <div>
-          <label htmlFor="descricao-negocio">Descrição</label>
+          <label htmlFor="descricao-negocio">
+            Descrição (opcional)
+          </label>
           <textarea
             id="descricao-negocio"
             name="descricao"
             maxLength={500}
             rows={3}
+            placeholder="Descreva seu negócio"
             value={dados.descricao}
             onChange={alterarNegocio}
           />
@@ -224,33 +191,39 @@ export default function SimuladorNegocio() {
           <label htmlFor="despesasFixas">
             Despesas fixas mensais (R$)
           </label>
-          <input
+
+          <CampoMoeda
             id="despesasFixas"
             name="despesasFixas"
-            type="number"
-            min="0"
-            step="0.01"
             required
             value={dados.despesasFixas}
-            onChange={alterarNegocio}
-            aria-describedby={
-              erro
-                ? 'ajuda-despesas erro-simulacao'
-                : 'ajuda-despesas'
+            onValueChange={(valor) =>
+              setDados((anteriores) => ({
+                ...anteriores,
+                despesasFixas: valor,
+              }))
             }
+            aria-describedby="ajuda-despesas ajuda-moeda"
           />
+
           <p id="ajuda-despesas" className="ajuda-campo">
-            Aluguel, internet e outras despesas do negócio. Esse valor
-            é descontado uma única vez.
+            Aluguel, internet e outras despesas mensais.
+            Digite 0 se não houver despesas fixas.
+          </p>
+
+          <p id="ajuda-moeda" className="ajuda-campo">
+            Nos valores em reais, a vírgula é automática.
+            Para R$ 20,00, digite 2000.
           </p>
         </div>
 
         <div className="acoes-negocio">
           <button
             type="button"
-            onClick={() => setDados(criarExemplo())}
+            onClick={limparCampos}
+            disabled={!temConteudoNegocio(dados)}
           >
-            Restaurar exemplo
+            Limpar campos
           </button>
 
           <button
@@ -274,15 +247,29 @@ export default function SimuladorNegocio() {
         </div>
 
         <p>
-          O cenário base guarda os resultados para comparação nesta
-          página. Restaurar o exemplo altera apenas o cenário atual.
+          Guardar o cenário base permite comparar os resultados
+          durante esta sessão. Para acessar depois, use os cenários
+          salvos na sua conta.
         </p>
       </section>
 
       <section aria-labelledby="titulo-resultados">
         <h2 id="titulo-resultados">
-          Resumo — {dados.nome.trim() || 'Negócio sem nome'}
+          {dados.nome.trim()
+            ? `Resumo — ${dados.nome.trim()}`
+            : 'Resumo do negócio'}
         </h2>
+
+        {!resultados && !erro && (
+          <div className="leitura-resultado">
+            <h3>Preencha os dados para começar</h3>
+            <p>
+              Informe as despesas fixas e, em cada produto, o nome,
+              o preço, o custo e a quantidade mensal.
+              Os resultados aparecerão automaticamente.
+            </p>
+          </div>
+        )}
 
         {erro && (
           <p id="erro-simulacao" role="alert">
@@ -354,8 +341,8 @@ export default function SimuladorNegocio() {
                   Mantendo os preços, os custos unitários e a proporção
                   de vendas entre os produtos, o faturamento de
                   referência para cobrir as despesas é de{' '}
-                  {formatarMoeda(equilibrio)}. É uma estimativa: as
-                  quantidades reais precisam ser inteiras.
+                  {formatarMoeda(equilibrio)}. É uma estimativa:
+                  as quantidades reais precisam ser inteiras.
                 </p>
               )}
 
@@ -369,9 +356,9 @@ export default function SimuladorNegocio() {
 
               {equilibrio === null && (
                 <p>
-                  Não foi possível estimar o faturamento de equilíbrio.
-                  Com despesas fixas, é necessário ter faturamento e
-                  contribuição total positiva para essa estimativa.
+                  Com despesas fixas, é necessário ter faturamento
+                  e contribuição total positiva para estimar
+                  o faturamento de equilíbrio.
                 </p>
               )}
             </div>
@@ -387,13 +374,13 @@ export default function SimuladorNegocio() {
                 os valores atuais.
               </p>
             )}
+
+            <p>
+              Estimativa mensal baseada somente nos custos informados.
+              O resultado não representa lucro líquido contábil.
+            </p>
           </>
         )}
-
-        <p>
-          Estimativa mensal baseada somente nos custos informados.
-          O resultado não representa lucro líquido contábil.
-        </p>
       </section>
 
       <section
@@ -429,6 +416,7 @@ export default function SimuladorNegocio() {
                     type="text"
                     maxLength={100}
                     required
+                    placeholder="Digite o nome do produto"
                     value={produto.nome}
                     onChange={(evento) =>
                       alterarProduto(
@@ -437,37 +425,68 @@ export default function SimuladorNegocio() {
                         evento.target.value,
                       )
                     }
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor={`precoVenda-${produto.id}`}>
+                    Preço por unidade (R$)
+                  </label>
+                  <CampoMoeda
+                    id={`precoVenda-${produto.id}`}
+                    required
+                    value={produto.precoVenda}
+                    onValueChange={(valor) =>
+                      alterarProduto(produto.id, 'precoVenda', valor)
+                    }
+                    aria-describedby="ajuda-moeda"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor={`custoVariavel-${produto.id}`}>
+                    Custo por unidade (R$)
+                  </label>
+                  <CampoMoeda
+                    id={`custoVariavel-${produto.id}`}
+                    required
+                    value={produto.custoVariavel}
+                    onValueChange={(valor) =>
+                      alterarProduto(
+                        produto.id,
+                        'custoVariavel',
+                        valor,
+                      )
+                    }
+                    aria-describedby="ajuda-moeda"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor={`quantidade-${produto.id}`}>
+                    Vendas no mês (unidades)
+                  </label>
+                  <input
+                    id={`quantidade-${produto.id}`}
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    step="1"
+                    required
+                    placeholder="Quantidade"
+                    value={produto.quantidade}
+                    onChange={(evento) =>
+                      alterarProduto(
+                        produto.id,
+                        'quantidade',
+                        evento.target.value,
+                      )
+                    }
                     aria-describedby={
                       erro ? 'erro-simulacao' : undefined
                     }
                   />
                 </div>
-
-                {camposProduto.map(({ nome, titulo, passo }) => (
-                  <div key={nome}>
-                    <label htmlFor={`${nome}-${produto.id}`}>
-                      {titulo}
-                    </label>
-                    <input
-                      id={`${nome}-${produto.id}`}
-                      type="number"
-                      min="0"
-                      step={passo}
-                      required
-                      value={produto[nome]}
-                      onChange={(evento) =>
-                        alterarProduto(
-                          produto.id,
-                          nome,
-                          evento.target.value,
-                        )
-                      }
-                      aria-describedby={
-                        erro ? 'erro-simulacao' : undefined
-                      }
-                    />
-                  </div>
-                ))}
               </div>
 
               <button
@@ -494,17 +513,14 @@ export default function SimuladorNegocio() {
           aria-labelledby="titulo-contribuicao"
           className="secao-tabela"
         >
-          <h2 id="titulo-contribuicao">
-            Participação dos produtos
-          </h2>
+          <h2 id="titulo-contribuicao">Participação dos produtos</h2>
 
           <table>
             <caption>
               A contribuição é o faturamento do produto menos seus
-              custos variáveis. As despesas fixas são descontadas no
-              resumo do negócio.
+              custos variáveis. As despesas fixas são descontadas
+              no resumo do negócio.
             </caption>
-
             <thead>
               <tr>
                 <th scope="col">Produto</th>
@@ -514,7 +530,6 @@ export default function SimuladorNegocio() {
                 <th scope="col">Contribuição total</th>
               </tr>
             </thead>
-
             <tbody>
               {resultados.produtos.map((produto) => (
                 <tr key={produto.id}>
@@ -539,7 +554,6 @@ export default function SimuladorNegocio() {
               Cenário base: {cenarioBase.nome}. Cenário atual:{' '}
               {dados.nome.trim() || 'Negócio sem nome'}.
             </caption>
-
             <thead>
               <tr>
                 <th scope="col">Indicador</th>
@@ -548,7 +562,6 @@ export default function SimuladorNegocio() {
                 <th scope="col">Diferença</th>
               </tr>
             </thead>
-
             <tbody>
               {indicadoresComparacao.map(({ nome, titulo }) => (
                 <tr key={nome}>

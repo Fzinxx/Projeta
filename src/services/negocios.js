@@ -90,3 +90,31 @@ export async function listarNegocios() {
     },
   }))
 }
+
+export async function excluirNegocio(id) {
+  if (!id) {
+    throw new Error('Selecione um negócio válido para excluir.')
+  }
+
+  const { data, error } = await supabase
+    .from('negocios')
+    .delete()
+    .eq('id', id)
+    .select('id')
+    .maybeSingle()
+
+  if (error) {
+    throw new Error(
+      'Não foi possível excluir o negócio. Confira sua conexão.',
+    )
+  }
+
+  if (!data) {
+    throw new Error(
+      'O negócio não foi encontrado ou você não tem acesso. ' +
+      'Feche e abra a lista para atualizar.',
+    )
+  }
+
+  return data.id
+}

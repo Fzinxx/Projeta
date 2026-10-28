@@ -1,24 +1,15 @@
 import { useState } from 'react'
-import { listarNegocios, salvarNegocio } from '../services/negocios.js'
+import {
+  excluirNegocio,
+  listarNegocios,
+  salvarNegocio,
+} from '../services/negocios.js'
+import {
+  criarNegocioVazio,
+  temConteudoNegocio,
+} from '../utils/camposNegocio.js'
 import CenariosSalvos from './CenariosSalvos.jsx'
 import '../MeusNegocios.css'
-
-function criarNegocioVazio() {
-  return {
-    nome: '',
-    descricao: '',
-    despesasFixas: '0',
-    produtos: [
-      {
-        id: crypto.randomUUID(),
-        nome: 'Produto 1',
-        precoVenda: '0',
-        custoVariavel: '0',
-        quantidade: '0',
-      },
-    ],
-  }
-}
 
 export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
   const [id, setId] = useState(() => crypto.randomUUID())
@@ -26,11 +17,16 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
   const [negocios, setNegocios] = useState([])
   const [mostrarLista, setMostrarLista] = useState(false)
   const [operacao, setOperacao] = useState('')
+  const [idExcluindo, setIdExcluindo] = useState(null)
   const [erro, setErro] = useState('')
   const [aviso, setAviso] = useState('')
 
   const ocupado = operacao !== ''
-  const temAlteracoes = JSON.stringify(dados) !== versaoSalva
+
+  const temAlteracoes =
+    versaoSalva === null
+      ? temConteudoNegocio(dados)
+      : JSON.stringify(dados) !== versaoSalva
 
   const situacao =
     versaoSalva === null
@@ -137,6 +133,52 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
     return true
   }
 
+  async function remover(negocio) {
+    if (ocupado) return
+
+    const negocioAberto = negocio.id === id
+
+    const avisoCampos = negocioAberto
+      ? ' O negócio está aberto na tela. Os campos serão limpos' +
+        ' e eventuais alterações não salvas serão descartadas.'
+      : ''
+
+    const confirmou = window.confirm(
+      `Excluir o negócio "${negocio.dados.nome}"? ` +
+      'Todos os produtos e cenários vinculados também serão excluídos. ' +
+      'Essa ação não pode ser desfeita.' +
+      avisoCampos,
+    )
+
+    if (!confirmou) return
+
+    setOperacao('excluir')
+    setIdExcluindo(negocio.id)
+    setErro('')
+    setAviso('')
+
+    try {
+      await excluirNegocio(negocio.id)
+
+      setNegocios((anteriores) =>
+        anteriores.filter((item) => item.id !== negocio.id),
+      )
+
+      if (negocioAberto) {
+        setId(crypto.randomUUID())
+        setVersaoSalva(null)
+        onAbrir(criarNegocioVazio())
+      }
+
+      setAviso(`Negócio "${negocio.dados.nome}" excluído.`)
+    } catch (falha) {
+      setErro(falha.message)
+    } finally {
+      setOperacao('')
+      setIdExcluindo(null)
+    }
+  }
+
   return (
     <section
       className="meus-negocios"
@@ -230,6 +272,18 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
                     >
                       Abrir
                     </button>
+
+                    <button
+                      className="remover-produto"
+                      type="button"
+                      onClick={() => remover(negocio)}
+                      disabled={ocupado}
+                      aria-label={`Excluir negócio ${negocio.dados.nome}`}
+                    >
+                      {idExcluindo === negocio.id
+                        ? 'Excluindo…'
+                        : 'Excluir'}
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -259,7 +313,7 @@ export default function MeusNegocios({ dados, podeSalvar, onAbrir }) {
         </div>
       ) : (
         <p className="negocio-orientacao">
-          Salve ou abra um negócio para acessar seus cenários.
+          Preencha um novo negócio ou abra um que você já salvou.
         </p>
       )}
     </section>
